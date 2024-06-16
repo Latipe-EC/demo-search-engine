@@ -8,14 +8,23 @@ FEATURES_PATH = "./features_index"
 
 def extractor_exec_image_db():
     fe = FeatureExtractor()
-    for img_path in sorted(Path(DATASET_PATH).glob("*.jpg")):
+    for img_path in sorted(Path(DATASET_PATH).rglob("*.jpg")):
         print(img_path)
 
         # Extract deep feature
         feature = fe.extract(img=Image.open(img_path))
 
-        feature_path = Path(FEATURES_PATH)/(img_path.stem+".npy")
+        # Tạo đường dẫn tương ứng trong thư mục features_index
+        relative_path = img_path.relative_to(DATASET_PATH)
+        feature_path = Path(FEATURES_PATH) / relative_path.with_suffix(".npy")
+
+        # Tạo các thư mục con nếu chúng chưa tồn tại
+        feature_path.parent.mkdir(parents=True, exist_ok=True)
+
         print(feature_path)
 
         # Save the feature
         np.save(feature_path, feature)
+
+# Chạy hàm để thực hiện trích xuất đặc trưng
+#extractor_exec_image_db()

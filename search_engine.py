@@ -15,20 +15,21 @@ class SearchEngine:
         self.features = []
         self.img_paths = []
 
-        for feature_path in Path(FEATURES_PATH).glob("*.npy"):
+        # Sử dụng rglob để tìm tất cả các tệp .npy trong thư mục con của FEATURES_PATH
+        for feature_path in Path(FEATURES_PATH).rglob("*.npy"):
             self.features.append(np.load(feature_path))
-            self.img_paths.append(Path(DATASET_PATH)/(feature_path.stem+".jpg"))
+            self.img_paths.append(Path(DATASET_PATH) / feature_path.relative_to(FEATURES_PATH).with_suffix(".jpg"))
+
         self.features = np.array(self.features)
 
-        self.fe=FeatureExtractor()
-        self.features = self.features
+        self.fe = FeatureExtractor()
         print(self.features.shape)
 
-    def search(self,img,size=9):
+    def search(self, img, size=9):
         query = self.fe.extract(img)
-        dists = np.linalg.norm(self.features - query, axis=1) # L2 distances to the features
-        ids = np.argsort(dists)[:size] # Top 9 results
-        scores = [self.img_paths[id] for id in ids]
-        return scores, dists
+        dists = np.linalg.norm(self.features - query, axis=1)  # L2 distances to the features
+        ids = np.argsort(dists)[:size]  # Top 9 results
+        product_id = [self.img_paths[id] for id in ids]
+        return product_id, dists
 
     
