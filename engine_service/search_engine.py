@@ -1,8 +1,12 @@
-from extractor_exec import FeatureExtractor
 import numpy as np
+#fix import library error
+import sys
+sys.path.append('engine_service')
+import extractor_exec as extrExe
+import feature_extractor as featEx
+
 from pathlib import Path
-from extractor_exec import DATASET_PATH
-from extractor_exec import FEATURES_PATH
+
 
 class SearchEngine:
     # change this code to singleton
@@ -16,13 +20,13 @@ class SearchEngine:
         self.img_paths = []
 
         # Sử dụng rglob để tìm tất cả các tệp .npy trong thư mục con của FEATURES_PATH
-        for feature_path in Path(FEATURES_PATH).rglob("*.npy"):
+        for feature_path in Path(extrExe.FEATURES_PATH).rglob("*.npy"):
             self.features.append(np.load(feature_path))
-            self.img_paths.append(Path(DATASET_PATH) / feature_path.relative_to(FEATURES_PATH).with_suffix(".jpg"))
+            self.img_paths.append(Path(extrExe.DATASET_PATH) / feature_path.relative_to(extrExe.FEATURES_PATH).with_suffix(".jpg"))
 
         self.features = np.array(self.features)
 
-        self.fe = FeatureExtractor()
+        self.fe = featEx.FeatureExtractor()
         print(self.features.shape)
 
     def search(self, img, size=9):
@@ -32,4 +36,4 @@ class SearchEngine:
         product_id = [self.img_paths[id] for id in ids]
         return product_id, dists
 
-    
+function = SearchEngine()

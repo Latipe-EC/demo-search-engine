@@ -1,5 +1,5 @@
 import numpy as np
-from feature_extractor import FeatureExtractor
+import feature_extractor as featEx
 from pathlib import Path
 from PIL import Image
 
@@ -7,7 +7,7 @@ DATASET_PATH = "./image_db"
 FEATURES_PATH = "./features_index"
 
 def extractor_exec_image_db():
-    fe = FeatureExtractor()
+    fe = featEx.FeatureExtractor()
     for img_path in sorted(Path(DATASET_PATH).rglob("*.jpg")):
         print(img_path)
 

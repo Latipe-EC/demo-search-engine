@@ -1,19 +1,16 @@
 import time
 from flask import Flask, request, jsonify, current_app, g as app_ctx
 
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
-from extractor_exec import extractor_exec_image_db
-from product_repository import ProductRepository
-from search_engine import SearchEngine
+from repository.product_repository import ProductRepository
+import engine_service.search_engine as se
 
 
 from PIL import Image
 # Flask API
 app = Flask(__name__, static_folder='statics')
 product_repos = ProductRepository('prods.json')
-search_engine = SearchEngine()
+search_engine = se.SearchEngine()
+
 
 
 @app.before_request
