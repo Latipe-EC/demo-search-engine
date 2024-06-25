@@ -12,7 +12,7 @@ from database.trained_repos import trained_find_by_id, trained_find_by_productId
 from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
 
 from engine_service.extractor_exec import extractor_exec_product_image_db
-from engine_service.search_engine_context import se_context
+from engine_service.se_context import se_context
 
 router = APIRouter()
 
