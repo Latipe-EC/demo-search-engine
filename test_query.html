@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <title>Test search query image</title>
+</head>
+<body>
+<!--Content-->
+
+<div class="container">
+    <div class="row">
+        <h1 class="mt-4">Test search query image</h1>
+        <div class="col-md-8">
+            <div class="mb-3 mt-5 d-flex align-items-center">
+                <input class="form-control me-5" type="file" id="formFile">
+                <button class="btn btn-primary" id="btn-search">Search</button>
+            </div>
+        </div>
+    </div>
+    <div class="display-image">
+
+
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+        integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+        integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+        crossorigin="anonymous"></script>
+<script>
+
+    $('#btn-search').click(function () {
+        let file = $('#formFile')[0].files[0];
+        let formData = new FormData();
+        formData.append('image_request', file);
+        $.ajax({
+            url: 'http://localhost:5055/api/search',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                console.log(data);
+                //data is [{'product_id': 1, 'product_name': 'abc', 'image_urls': 'http://localhost:5055/static/abc.jpg'},
+                // {'product_id': 2, 'product_name': 'def', 'image_urls': 'http://localhost:5055/static/def.jpg}]
+                let displayImage = $('.display-image');
+                displayImage.empty();
+                data.forEach(function (item) {
+                    let image = `<img src="${item.image_urls}" class="img-thumbnail" alt="image" style="width: 200px; height: 200px;">`;
+                    displayImage.append(image);
+                });
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+
+</script>
+
+<!--Content-->
+
+</body>
+</html>

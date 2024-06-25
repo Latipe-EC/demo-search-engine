@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
 
-from engine_service.extractor_exec import FEATURES_PATH, DATASET_PATH
+from config.variable import RETRIVAL_DB_FEATURE_FOLDER
 from engine_service.feature_extractor import FeatureExtractor
 
 
@@ -15,13 +15,13 @@ class SearchEngine:
     
     def __init__(self):
         self.features = []
-        self.features_path = []
+        self.RETRIVAL_DB_FEATURE_FOLDER = []
 
-        # Sử dụng rglob để tìm tất cả các tệp .npy trong thư mục con của FEATURES_PATH
-        for feature_path in Path(FEATURES_PATH).rglob("*.npy"):
+        # Sử dụng rglob để tìm tất cả các tệp .npy trong thư mục con của RETRIVAL_DB_FEATURE_FOLDER
+        for feature_path in Path(RETRIVAL_DB_FEATURE_FOLDER).rglob("*.npy"):
             self.features.append(np.load(feature_path))
-            self.features_path.append(
-                Path(FEATURES_PATH) / feature_path.relative_to(FEATURES_PATH).with_suffix(".npy"))
+            self.RETRIVAL_DB_FEATURE_FOLDER.append(
+                Path(RETRIVAL_DB_FEATURE_FOLDER) / feature_path.relative_to(RETRIVAL_DB_FEATURE_FOLDER).with_suffix(".npy"))
 
         self.features = np.array(self.features)
 
@@ -30,12 +30,12 @@ class SearchEngine:
 
     def update_instance(self):
         self.features = []
-        self.features_path = []
+        self.RETRIVAL_DB_FEATURE_FOLDER = []
 
-        for feature_path in Path(FEATURES_PATH).rglob("*.npy"):
+        for feature_path in Path(RETRIVAL_DB_FEATURE_FOLDER).rglob("*.npy"):
             self.features.append(np.load(feature_path))
-            self.features_path.append(
-                Path(FEATURES_PATH) / feature_path.relative_to(FEATURES_PATH).with_suffix(".npy")
+            self.RETRIVAL_DB_FEATURE_FOLDER.append(
+                Path(RETRIVAL_DB_FEATURE_FOLDER) / feature_path.relative_to(RETRIVAL_DB_FEATURE_FOLDER).with_suffix(".npy")
             )
 
         self.features = np.array(self.features)
@@ -46,7 +46,7 @@ class SearchEngine:
         query = self.fe.extract(img)
         dists = np.linalg.norm(self.features - query, axis=1)  # L2 distances to the features
         ids = np.argsort(dists)[:size]  # Top 9 results
-        product_id = [self.features_path[id] for id in ids]
+        product_id = [self.RETRIVAL_DB_FEATURE_FOLDER[id] for id in ids]
         return product_id, dists
 
 

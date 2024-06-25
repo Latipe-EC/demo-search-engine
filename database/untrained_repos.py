@@ -3,10 +3,11 @@ import shutil
 
 from bson import ObjectId
 
+from config.variable import RETRIEVAL_DB_IMAGE_FOLDER
 from database.mongo_db import database
 from domain.dto import PrepareTrainingProductRequest
 from domain.models import BaseProductModel
-from engine_service.extractor_exec import DATASET_PATH
+
 
 untrained_product = database.get_collection('untrained_product')
 
@@ -59,7 +60,7 @@ async def untrained_delete_by_productId(product_id) -> int:
 
     if product.deleted_count > 0:
         # delete all image in storage
-        img_folder_path = os.path.join(DATASET_PATH, product_id)
+        img_folder_path = os.path.join(RETRIEVAL_DB_IMAGE_FOLDER, product_id)
         if os.path.exists(img_folder_path):
             shutil.rmtree(img_folder_path)
 

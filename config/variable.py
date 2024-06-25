@@ -1,7 +1,5 @@
 import yaml
 
-from engine_service.search_engine import SearchEngine
-
 
 # singleton class to store global configuration
 class GlobalConfig:
@@ -18,10 +16,9 @@ class GlobalConfig:
             cfg = yaml.safe_load(file)
         self.config = cfg
 
+
 # global configuration
 global_cfg = GlobalConfig()
-
-se_context = SearchEngine()
 
 SERVER_PORT = global_cfg.config['server']['port']
 

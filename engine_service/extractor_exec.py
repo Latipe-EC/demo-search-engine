@@ -13,26 +13,23 @@ from io import BytesIO
 
 from engine_service.feature_extractor import FeatureExtractor
 
-DATASET_PATH = configEnv.RETRIEVAL_DB_IMAGE_FOLDER
-FEATURES_PATH = configEnv.RETRIVAL_DB_FEATURE_FOLDER
-
 
 def extractor_exec_image_db():
     fe = FeatureExtractor()
-    for img_path in sorted(Path(DATASET_PATH).rglob("*.jpg")):
+    for img_path in sorted(Path(configEnv.RETRIEVAL_DB_IMAGE_FOLDER).rglob("*.jpg")):
         print(img_path)
 
         # Extract deep feature
         feature = fe.extract(img=Image.open(img_path))
 
-        relative_path = img_path.relative_to(DATASET_PATH)
-        feature_path = Path(FEATURES_PATH) / relative_path.with_suffix(".npy")
+        relative_path = img_path.relative_to(configEnv.RETRIEVAL_DB_IMAGE_FOLDER)
+        feature_path = Path(configEnv.RETRIVAL_DB_FEATURE_FOLDER) / relative_path.with_suffix(".npy")
         feature_path.parent.mkdir(parents=True, exist_ok=True)
         # Save the feature
         np.save(feature_path, feature)
 
-    # Delete all folders in DATASET_PATH when finish extracting
-    for folder in Path(DATASET_PATH).iterdir():
+    # Delete all folders in configEnv.RETRIEVAL_DB_IMAGE_FOLDER when finish extracting
+    for folder in Path(configEnv.RETRIEVAL_DB_IMAGE_FOLDER).iterdir():
         if folder.is_dir():
             shutil.rmtree(folder)
             print(f"Đã xóa thư mục: {folder}")
@@ -43,7 +40,7 @@ async def extractor_exec_product_image_db(untrained_product: dict):
     product_id = untrained_product['product_id']
     img_urls = untrained_product['image_urls']
 
-    img_folder_path = os.path.join(DATASET_PATH, product_id)
+    img_folder_path = os.path.join(configEnv.RETRIEVAL_DB_IMAGE_FOLDER, product_id)
     if os.path.exists(img_folder_path):
         shutil.rmtree(img_folder_path)
     os.makedirs(img_folder_path)
@@ -57,8 +54,8 @@ async def extractor_exec_product_image_db(untrained_product: dict):
         # Extract deep feature
         feature = fe.extract(img=Image.open(img_path))
 
-        relative_path = img_path.relative_to(DATASET_PATH)
-        feature_path = Path(FEATURES_PATH) / relative_path.with_suffix(".npy")
+        relative_path = img_path.relative_to(configEnv.RETRIEVAL_DB_IMAGE_FOLDER)
+        feature_path = Path(configEnv.RETRIVAL_DB_FEATURE_FOLDER) / relative_path.with_suffix(".npy")
         feature_path.parent.mkdir(parents=True, exist_ok=True)
         # Save the feature
         np.save(feature_path, feature)
@@ -68,14 +65,14 @@ async def extractor_exec_product_image_db(untrained_product: dict):
 
 
 def download_image_db(untrained_products):
-    if not os.path.exists(DATASET_PATH):
-        os.makedirs(DATASET_PATH)
+    if not os.path.exists(configEnv.RETRIEVAL_DB_IMAGE_FOLDER):
+        os.makedirs(configEnv.RETRIEVAL_DB_IMAGE_FOLDER)
 
     for product in untrained_products:
         product_id = product['product_id']
         img_urls = product['image_urls']
 
-        img_folder_path = os.path.join(DATASET_PATH, product_id)
+        img_folder_path = os.path.join(configEnv.RETRIEVAL_DB_IMAGE_FOLDER, product_id)
 
         if os.path.exists(img_folder_path):
             shutil.rmtree(img_folder_path)
@@ -86,6 +83,7 @@ def download_image_db(untrained_products):
         download_image(img_urls, img_folder_path)
         for img_url in img_urls:
             download_image(img_url, img_folder_path)
+
 
 def download_image(image_url, image_folder):
     try:
