@@ -50,4 +50,3 @@ class SearchEngine:
         return product_id, dists
 
 
-se_context = SearchEngine()

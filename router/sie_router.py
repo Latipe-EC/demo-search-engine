@@ -4,6 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.params import Form, File
 import io
 
+from config.variable import se_context
 from database.untrained_repos import untrained_insert_new_product, untrained_find_by_productId, \
     untrained_delete_by_productId
 from database.trained_repos import trained_find_by_id, trained_find_by_productId, trained_insert_new_product, \
@@ -11,7 +12,7 @@ from database.trained_repos import trained_find_by_id, trained_find_by_productId
 from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
 
 from engine_service.extractor_exec import extractor_exec_product_image_db
-from engine_service.search_engine import SearchEngine, se_context
+
 
 router = APIRouter()
 
