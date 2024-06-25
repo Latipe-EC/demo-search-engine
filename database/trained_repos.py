@@ -1,7 +1,11 @@
+import os
+import shutil
+
 from bson import ObjectId
 
 from database.mongo_db import database
 from domain.models import BaseProductModel
+from engine_service.extractor_exec import FEATURES_PATH
 
 trained_collection = database.get_collection('trained_product')
 
@@ -46,4 +50,9 @@ async def trained_find_all_in_query(product_ids: list):
 
 async def delete_trained_product(product_id: str):
     product = await trained_collection.delete_one({'product_id': product_id})
+
+    img_folder_path = os.path.join(FEATURES_PATH, product_id)
+    if os.path.exists(img_folder_path):
+        shutil.rmtree(img_folder_path)
+
     return product.deleted_count

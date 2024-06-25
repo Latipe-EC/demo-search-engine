@@ -1,8 +1,12 @@
+import os
+import shutil
+
 from bson import ObjectId
 
 from database.mongo_db import database
 from domain.dto import PrepareTrainingProductRequest
 from domain.models import BaseProductModel
+from engine_service.extractor_exec import DATASET_PATH
 
 untrained_product = database.get_collection('untrained_product')
 
@@ -28,9 +32,15 @@ async def untrained_insert_new_product(entity: PrepareTrainingProductRequest) ->
     return untrained_product_helper(new_entity)
 
 
-async def untrained_find_by_id(product_id) -> BaseProductModel:
-    product = await untrained_product.find_one({'_id': ObjectId(product_id)})
+async def untrained_find_by_id(id) -> BaseProductModel:
+    product = await untrained_product.find_one({'_id': ObjectId(id)})
 
+    if product:
+        return untrained_product_helper(product)
+
+
+async def untrained_find_by_productId(product_id) -> BaseProductModel:
+    product = await untrained_product.find_one({'product_id': product_id})
     if product:
         return untrained_product_helper(product)
 
@@ -42,3 +52,15 @@ async def untrained_find_all():
         products.append(untrained_product_helper(p))
 
     return products
+
+
+async def untrained_delete_by_productId(product_id) -> int:
+    product = await untrained_product.delete_one({'product_id': product_id})
+
+    if product.deleted_count > 0:
+        # delete all image in storage
+        img_folder_path = os.path.join(DATASET_PATH, product_id)
+        if os.path.exists(img_folder_path):
+            shutil.rmtree(img_folder_path)
+
+    return product.deleted_count

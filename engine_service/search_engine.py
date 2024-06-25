@@ -28,6 +28,19 @@ class SearchEngine:
         self.fe = FeatureExtractor()
         print(self.features.shape)
 
+    def update_instance(self):
+        self.features = []
+        self.features_path = []
+
+        for feature_path in Path(FEATURES_PATH).rglob("*.npy"):
+            self.features.append(np.load(feature_path))
+            self.features_path.append(
+                Path(FEATURES_PATH) / feature_path.relative_to(FEATURES_PATH).with_suffix(".npy")
+            )
+
+        self.features = np.array(self.features)
+        print("Instance updated with new features.")
+        print(self.features.shape)
 
     def search(self, img, size=9):
         query = self.fe.extract(img)
@@ -35,3 +48,6 @@ class SearchEngine:
         ids = np.argsort(dists)[:size]  # Top 9 results
         product_id = [self.features_path[id] for id in ids]
         return product_id, dists
+
+
+se_context = SearchEngine()
