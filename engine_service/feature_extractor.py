@@ -1,10 +1,9 @@
 import numpy as np
 
 from tensorflow import keras
+from tensorflow.keras.applications.vgg16 import preprocess_input
+from tensorflow.keras.preprocessing import image
 
-from keras.applications.vgg16 import preprocess_input
-from keras.preprocessing import image
-from keras.utils import img_to_array
 
 from pathlib import Path
 from PIL import Image
@@ -13,6 +12,7 @@ class FeatureExtractor:
   def __init__(self):
     base_model = keras.applications.VGG16(weights="imagenet")
     self.model = keras.models.Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
+
   def extract(self, img):
     # Resize the image
     img = img.resize((224, 224))

@@ -1,0 +1,33 @@
+server:
+  port: 8100
+  name: "Search Image Engine API Server"
+  version: "1.0.0"
+  api_name: sie
+
+training_config:
+  daily_schedule: "0 0 0 * * *"
+  url_schedule_callback: "http://localhost:5000/api/v1/sie/schedule/callback"
+  x_api_key: ""
+
+mongodb:
+  uri: "mongodb://localhost:27017"
+
+rabbitmq:
+  uri:
+  queue_name:
+  exchange_name:
+  routing_key:
+
+retrieval_db:
+  image_folder: "./image_db"
+  feature_folder: "./feature_index"
+
+infrastructures:
+  product_service:
+    url: "http://localhost:8081/api/v1/products"
+    x_api_key: ""
+
+  schedule_grpc_service:
+    host: "localhost"
+    port: 50051
+    x_api_key: ""
