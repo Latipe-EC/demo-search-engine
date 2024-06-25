@@ -10,15 +10,11 @@ app = FastAPI()
 app.include_router(router, prefix="/api/v1/sie", tags=["Search Image Engine API v1"])
 
 
-origins = [
-    "http://localhost:5670",
-    "http://localhost:8080",
-    "http://localhost:63342"
-]
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
