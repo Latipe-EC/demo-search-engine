@@ -3,10 +3,9 @@ from fastapi import APIRouter, Body, Request, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Form, File
 import io
-
-
+from config.variable import X_API_KEY, PRODUCT_SERVICE_URL
 from database.untrained_repos import untrained_insert_new_product, untrained_find_by_productId, \
-    untrained_delete_by_productId
+    untrained_delete_by_productId, untrained_find_all
 from database.trained_repos import trained_find_by_id, trained_find_by_productId, trained_insert_new_product, \
     delete_trained_product, trained_find_all_in_query
 from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
@@ -14,9 +13,30 @@ from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, Resp
 from engine_service.extractor_exec import extractor_exec_product_image_db
 from engine_service.se_context import se_context
 
+import requests
 router = APIRouter()
 
 
+@router.post("/webhook/trigger-training")
+async def trigger_training(request: Request):
+    x_api_key = request.headers.get("x-api-key")
+
+    if x_api_key != X_API_KEY:
+        return ResponseErrorModel(None, "Unauthorized", 401)
+
+    products = await untrained_find_all()
+
+    for product in products:
+        if product.image_urls is None:
+            product = requests.get(f'{PRODUCT_SERVICE_URL}/products-es/{product.product_id}', headers={
+                "Content-Type": "application/json"
+            }).json()
+
+        await extractor_exec_product_image_db(product)
+        await trained_insert_new_product(product)
+        se_context.update_instance()
+
+    return ResponseSuccessModel(None, "Product trained successfully.")
 
 @router.post("/search")
 async def search(image_request: UploadFile = File(...), size: int = Form(9)):
@@ -53,7 +73,7 @@ async def training_new_product(dto: PrepareTrainingProductRequest = Body(...)):
             return ResponseErrorModel(None, "Failed to change")
 
     await trained_insert_new_product(dto)
-    await extractor_exec_product_image_db(dto.dict())
+    await extractor_exec_product_image_db(dto.model_dump())
     se_context.update_instance()
 
     return ResponseSuccessModel(None, "Product added successfully.")

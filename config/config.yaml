@@ -31,3 +31,14 @@ infrastructures:
     host: "localhost"
     port: 50051
     x_api_key: ""
+
+  rabbitmq_service:
+    host: "localhost"
+    product:
+      exchange: "dbproduct_exchange"
+      routing_key: "ai_routing_key"
+      name: "product_updates"
+
+product_service_url: "http://localhost:8081/api/v1/products"
+
+x_api_key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="

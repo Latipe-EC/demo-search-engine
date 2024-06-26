@@ -26,3 +26,10 @@ RETRIEVAL_DB_IMAGE_FOLDER = global_cfg.config['retrieval_db']['image_folder']
 RETRIVAL_DB_FEATURE_FOLDER = global_cfg.config['retrieval_db']['feature_folder']
 
 MONGO_DB_CLIENT = global_cfg.config['mongodb']['uri']
+
+RABBITMQ_HOST = global_cfg.config['rabbitmq_service']['host']
+PRODUCT_UPDATES_QUEUE = global_cfg.config['product']['name']
+PRODUCT_EXCHANGE = global_cfg.config['product']['exchange']
+PRODUCT_ROUTING_KEY = global_cfg.config['product']['routing_key']
+X_API_KEY = global_cfg.config['x_api_key']
+PRODUCT_SERVICE_URL = global_cfg.config['product_service_url']
