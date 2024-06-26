@@ -33,6 +33,7 @@ def setup_rabbitmq_consumer():
         channel.queue_bind(exchange=PRODUCT_EXCHANGE, queue=PRODUCT_UPDATES_QUEUE, routing_key=PRODUCT_ROUTING_KEY)
 
         channel.start_consuming()
+
     except Exception as e:
         return ResponseErrorModel(
             f"Failed to connect to RabbitMQ server at {RABBITMQ_HOST}. Please check if the server is running and "
@@ -50,8 +51,8 @@ def handle_recive_message(ch, method, properties, body):
         if trained_find_by_productId(message['id']):
             untrained_insert_new_product({
                 "product_id": message['id'],
-                "product_name": message['images'],
-                "image_urls": message['name'],
+                "product_name": message['name'],
+                "image_urls": message['images'],
             })
             delete_trained_product(message['id'])
         else:

@@ -1,19 +1,19 @@
+import io
+
+import requests
 from PIL import Image
 from fastapi import APIRouter, Body, Request, UploadFile
-from fastapi.encoders import jsonable_encoder
 from fastapi.params import Form, File
-import io
-from config.variable import X_API_KEY, PRODUCT_SERVICE_URL
-from database.untrained_repos import untrained_insert_new_product, untrained_find_by_productId, \
-    untrained_delete_by_productId, untrained_find_all
-from database.trained_repos import trained_find_by_id, trained_find_by_productId, trained_insert_new_product, \
-    delete_trained_product, trained_find_all_in_query
-from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
 
+from config.variable import X_API_KEY, PRODUCT_SERVICE_URL
+from database.trained_repos import trained_find_by_productId, trained_insert_new_product, \
+    delete_trained_product, trained_find_all_in_query
+from database.untrained_repos import untrained_find_by_productId, \
+    untrained_delete_by_productId, untrained_find_all
+from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
 from engine_service.extractor_exec import extractor_exec_product_image_db
 from engine_service.se_context import se_context
 
-import requests
 router = APIRouter()
 
 
@@ -26,17 +26,21 @@ async def trigger_training(request: Request):
 
     products = await untrained_find_all()
 
-    for product in products:
-        if product.image_urls is None:
-            product = requests.get(f'{PRODUCT_SERVICE_URL}/products-es/{product.product_id}', headers={
-                "Content-Type": "application/json"
-            }).json()
+    response = requests.post(f'{PRODUCT_SERVICE_URL}/products-es-multiple', headers={
+        "Content-Type": "application/json"
+    }, json={"product_ids": [product.product_id for product in products]})
 
-        await extractor_exec_product_image_db(product)
+    for product in response.json():
+        await extractor_exec_product_image_db({
+            "product_id": product.id,
+            "product_name": product.product_name,
+            "image_urls": product.image_urls
+        })
         await trained_insert_new_product(product)
         se_context.update_instance()
 
     return ResponseSuccessModel(None, "Product trained successfully.")
+
 
 @router.post("/search")
 async def search(image_request: UploadFile = File(...), size: int = Form(9)):
