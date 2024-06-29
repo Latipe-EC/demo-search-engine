@@ -12,7 +12,7 @@ class GlobalConfig:
         return cls._instance
 
     def __init__(self):
-        with open('C:\\Users\\Admin\\Code\\Python\\image-search-engine\\config\\config.yaml', 'r') as file:
+        with open('./config/config.yaml', 'r') as file:
             cfg = yaml.safe_load(file)
         self.config = cfg
 
@@ -27,9 +27,9 @@ RETRIVAL_DB_FEATURE_FOLDER = global_cfg.config['retrieval_db']['feature_folder']
 
 MONGO_DB_CLIENT = global_cfg.config['mongodb']['uri']
 
-RABBITMQ_HOST = global_cfg.config['rabbitmq_service']['host']
-PRODUCT_UPDATES_QUEUE = global_cfg.config['product']['name']
-PRODUCT_EXCHANGE = global_cfg.config['product']['exchange']
-PRODUCT_ROUTING_KEY = global_cfg.config['product']['routing_key']
+RABBITMQ_HOST = global_cfg.config['rabbitmq']['host']
+PRODUCT_UPDATES_QUEUE = global_cfg.config['rabbitmq']['queue_name']
+PRODUCT_EXCHANGE = global_cfg.config['rabbitmq']['exchange_name']
+PRODUCT_ROUTING_KEY = global_cfg.config['rabbitmq']['routing_key']
 X_API_KEY = global_cfg.config['x_api_key']
 PRODUCT_SERVICE_URL = global_cfg.config['product_service_url']

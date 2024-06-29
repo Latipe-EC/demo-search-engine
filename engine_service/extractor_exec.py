@@ -49,7 +49,6 @@ async def extractor_exec_product_image_db(untrained_product: dict):
         download_image(img_url, img_folder_path)
 
     for img_path in sorted(Path(img_folder_path).rglob("*.jpg")):
-        print(img_path)
 
         # Extract deep feature
         feature = fe.extract(img=Image.open(img_path))
@@ -91,10 +90,11 @@ def download_image(image_url, image_folder):
         response.raise_for_status()
 
         img_name = os.path.basename(image_url)
-        img_name = os.path.splitext(img_name)[0] + '.jpg'  # Đảm bảo đuôi file là .jpg
+        img_name = os.path.splitext(img_name)[0] + '.jpg'  # Ensure the file extension is .jpg
         img_path = os.path.join(image_folder, img_name)
 
         image = Image.open(BytesIO(response.content))
+        image = image.convert("RGB")  # Convert image to RGB mode
         resized_image = image.resize((224, 224))
 
         resized_image.save(img_path, format="JPEG")

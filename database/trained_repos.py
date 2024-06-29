@@ -25,7 +25,7 @@ async def trained_insert_new_product(entity):
         "product_name": entity.product_name,
         "image_urls": entity.image_urls
     }
-    product = await trained_collection.insert_one(document)
+    await trained_collection.insert_one(document)
 
 
 

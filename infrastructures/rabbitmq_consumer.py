@@ -1,4 +1,5 @@
 # rabbitmq_consumer.py
+import asyncio
 import json
 from enum import Enum
 
@@ -7,7 +8,7 @@ import pika
 from config.variable import PRODUCT_UPDATES_QUEUE, RABBITMQ_HOST, PRODUCT_EXCHANGE, \
     PRODUCT_ROUTING_KEY
 from database.trained_repos import trained_find_by_productId, delete_trained_product
-from database.untrained_repos import untrained_insert_new_product, untrained_delete_by_productId
+from database.untrained_repos import sync_insert_new_product, untrained_delete_by_productId
 from domain.dto import ResponseErrorModel
 
 
@@ -16,6 +17,8 @@ class Action(Enum):
     UPDATE = "u"
     DELETE = "d"
 
+def sync_handle_recive_message(ch, method, properties, body):
+    asyncio.run(handle_recive_message(ch, method, properties, body))
 
 def setup_rabbitmq_consumer():
     try:
@@ -27,7 +30,7 @@ def setup_rabbitmq_consumer():
 
         # Declare exchanges
         channel.exchange_declare(exchange=PRODUCT_EXCHANGE, exchange_type='topic', durable=True)
-        channel.basic_consume(queue=PRODUCT_UPDATES_QUEUE, on_message_callback=handle_recive_message, auto_ack=True)
+        channel.basic_consume(queue=PRODUCT_UPDATES_QUEUE, on_message_callback=sync_handle_recive_message, auto_ack=True)
 
         # Product updates consumer
         channel.queue_bind(exchange=PRODUCT_EXCHANGE, queue=PRODUCT_UPDATES_QUEUE, routing_key=PRODUCT_ROUTING_KEY)
@@ -40,29 +43,30 @@ def setup_rabbitmq_consumer():
             f"the host is correct.", "Establish product queue fail.", 400)
 
 
-def handle_recive_message(ch, method, properties, body):
+
+async def handle_recive_message(ch, method, properties, body):
     message = json.loads(body)
 
     if message['op'] == Action.CREATE.value:
-        untrained_insert_new_product({
+        sync_insert_new_product({
             "product_id": message['id']
         })
     elif message['op'] == Action.UPDATE.value:
         if trained_find_by_productId(message['id']):
-            untrained_insert_new_product({
+            sync_insert_new_product({
                 "product_id": message['id'],
                 "product_name": message['name'],
                 "image_urls": message['images'],
             })
-            delete_trained_product(message['id'])
+            await delete_trained_product(message['id'])
         else:
-            untrained_insert_new_product({
+            sync_insert_new_product({
                 "product_id": message['id']
             })
     elif message['op'] == Action.DELETE.value:
         if trained_find_by_productId(message['id']):
-            untrained_delete_by_productId(message['id'])
+            await untrained_delete_by_productId(message['id'])
         else:
-            delete_trained_product(message['id'])
+            await delete_trained_product(message['id'])
     else:
         return ResponseErrorModel("Action not found", "Action not found", 400)

@@ -1,15 +1,17 @@
 import io
+import json
 
 import requests
 from PIL import Image
 from fastapi import APIRouter, Body, Request, UploadFile
 from fastapi.params import Form, File
+from fastapi import BackgroundTasks
 
 from config.variable import X_API_KEY, PRODUCT_SERVICE_URL
 from database.trained_repos import trained_find_by_productId, trained_insert_new_product, \
     delete_trained_product, trained_find_all_in_query
 from database.untrained_repos import untrained_find_by_productId, \
-    untrained_delete_by_productId, untrained_find_all
+    untrained_delete_by_productId, untrained_find_all, sync_insert_new_product, untrained_insert_new_product
 from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
 from engine_service.extractor_exec import extractor_exec_product_image_db
 from engine_service.se_context import se_context
@@ -18,29 +20,47 @@ router = APIRouter()
 
 
 @router.post("/webhook/trigger-training")
-async def trigger_training(request: Request):
+async def trigger_training(request: Request, background_tasks: BackgroundTasks):
     x_api_key = request.headers.get("x-api-key")
 
     if x_api_key != X_API_KEY:
         return ResponseErrorModel(None, "Unauthorized", 401)
 
+    background_tasks.add_task(train)
+
+    return ResponseSuccessModel(None, "Training started successfully.")
+
+
+async def train():
     products = await untrained_find_all()
+
+    product_pretrained = [product for product in products if 'image_urls' in product]
+    product_not_pretrained = [product for product in products if 'image_urls' not in product]
 
     response = requests.post(f'{PRODUCT_SERVICE_URL}/products-es-multiple', headers={
         "Content-Type": "application/json"
-    }, json={"product_ids": [product.product_id for product in products]})
+    }, json={"product_ids": [product.product_id for product in product_not_pretrained]})
 
-    for product in response.json():
+    if response.status_code != 200:
+        return ResponseErrorModel(None, "Failed to fetch product details", 500)
+
+    product_pretrained.extend(response.json())
+
+    products = [{'id' if k == 'product_id' else k: v for k, v in product.items()} for product in
+                product_pretrained]
+
+    for product in products:
         await extractor_exec_product_image_db({
-            "product_id": product.id,
-            "product_name": product.product_name,
-            "image_urls": product.image_urls
+            "product_id": product['id'],
+            "product_name": product['product_name'],
+            "image_urls": product['image_urls']
         })
-        await trained_insert_new_product(product)
+        await trained_insert_new_product(PrepareTrainingProductRequest(
+            product_id=product['id'],
+            product_name=product['product_name'],
+            image_urls=product['image_urls']
+        ))
         se_context.update_instance()
-
-    return ResponseSuccessModel(None, "Product trained successfully.")
-
 
 @router.post("/search")
 async def search(image_request: UploadFile = File(...), size: int = Form(9)):

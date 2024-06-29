@@ -33,6 +33,11 @@ async def untrained_insert_new_product(entity: PrepareTrainingProductRequest) ->
     return untrained_product_helper(new_entity)
 
 
+def sync_insert_new_product(obj):
+    untrained_product.insert_one(obj)
+
+
+
 async def untrained_find_by_id(id) -> BaseProductModel:
     product = await untrained_product.find_one({'_id': ObjectId(id)})
 
