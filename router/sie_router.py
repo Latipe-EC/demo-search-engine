@@ -1,5 +1,4 @@
 import io
-import json
 
 import requests
 from PIL import Image
@@ -11,7 +10,7 @@ from config.variable import X_API_KEY, PRODUCT_SERVICE_URL
 from database.trained_repos import trained_find_by_productId, trained_insert_new_product, \
     delete_trained_product, trained_find_all_in_query
 from database.untrained_repos import untrained_find_by_productId, \
-    untrained_delete_by_productId, untrained_find_all, sync_insert_new_product, untrained_insert_new_product
+    untrained_delete_by_productId, untrained_find_all
 from domain.dto import PrepareTrainingProductRequest, ResponseSuccessModel, ResponseErrorModel
 from engine_service.extractor_exec import extractor_exec_product_image_db
 from engine_service.se_context import se_context
@@ -49,6 +48,7 @@ async def train():
     products = [{'id' if k == 'product_id' else k: v for k, v in product.items()} for product in
                 product_pretrained]
 
+    print(f'Start training {len(products)} products')
     for product in products:
         await extractor_exec_product_image_db({
             "product_id": product['id'],
@@ -61,6 +61,7 @@ async def train():
             image_urls=product['image_urls']
         ))
         se_context.update_instance()
+        print(f"Product {product['id']} trained successfully.")
 
 @router.post("/search")
 async def search(image_request: UploadFile = File(...), size: int = Form(9)):

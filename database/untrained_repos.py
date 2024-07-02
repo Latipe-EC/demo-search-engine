@@ -17,7 +17,7 @@ def untrained_product_helper(product) -> BaseProductModel:
         id=str(product['_id']),
         product_id=product['product_id'],
         product_name=product['product_name'],
-        image_urls=product['image_urls']
+        image_urls=product.get('image_urls', [])
     )
 
 
