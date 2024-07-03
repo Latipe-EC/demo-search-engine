@@ -13,10 +13,11 @@ mongodb:
   uri: "mongodb://localhost:27017"
 
 rabbitmq:
-  uri:
-  queue_name:
-  exchange_name:
-  routing_key:
+  host: "localhost"
+  queue_name: "product_updates"
+  exchange_name: "dbproduct_exchange"
+  routing_key: "ai_routing_key"
+
 
 retrieval_db:
   image_folder: "./image_db"
@@ -31,3 +32,7 @@ infrastructures:
     host: "localhost"
     port: 50051
     x_api_key: ""
+
+product_service_url: "http://localhost:8181/api/v1/products"
+
+x_api_key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="

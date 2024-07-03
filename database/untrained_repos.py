@@ -17,7 +17,7 @@ def untrained_product_helper(product) -> BaseProductModel:
         id=str(product['_id']),
         product_id=product['product_id'],
         product_name=product['product_name'],
-        image_urls=product['image_urls']
+        image_urls=product.get('image_urls', [])
     )
 
 
@@ -31,6 +31,11 @@ async def untrained_insert_new_product(entity: PrepareTrainingProductRequest) ->
     product = await untrained_product.insert_one(document)
     new_entity = await untrained_product.find_one({"_id": product.inserted_id})
     return untrained_product_helper(new_entity)
+
+
+def sync_insert_new_product(obj):
+    untrained_product.insert_one(obj)
+
 
 
 async def untrained_find_by_id(id) -> BaseProductModel:

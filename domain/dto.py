@@ -4,9 +4,9 @@ from pydantic import BaseModel, EmailStr, Field
 
 class PrepareTrainingProductRequest(BaseModel):
     product_id: str
-    product_name: str
-    image_urls: List[str]
-    skip: Optional[bool] = Field(False)
+    product_name: Optional[str] = Field(None)
+    image_urls: Optional[List[str]] = Field(None)
+    skip: Optional[bool] = Field(None)
 
     class Config:
         json_schema_extra = {
