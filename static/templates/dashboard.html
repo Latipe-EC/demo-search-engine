@@ -24,6 +24,21 @@
     <a class="btn btn-outline-success my-2 my-sm-0" href="/sie/admin/query" style="margin-right: 40px;">Search</a>
 </nav>
 <div class="container mt-5">
+    {% if errorCode==1 %}
+        <div class="alert alert-danger" role="alert">
+            Không tìm thấy đối tượng
+        </div>
+    {% endif %}
+    {% if errorCode==2 %}
+        <div class="alert alert-danger" role="alert">
+            Lỗi hệ thống
+        </div>
+    {% endif %}
+    {% if successCode==1 %}
+        <div class="alert alert-success" role="alert">
+            Thao tác thành công
+        </div>
+    {% endif %}
 
     <div class="row flex-lg-nowrap">
         <div class="col">
@@ -54,7 +69,7 @@
                                                     <div class="bg-light d-inline-flex justify-content-center align-items-center align-top"
                                                          style="width: 35px; height: 35px; border-radius: 3px;">
                                                         <img style="width: 35px; height: 35px;"
-                                                             src="{{ i.image_urls[0] }}" alt="{{ i.id }}">
+                                                             src="{{ i.image_urls[0] }}" alt="{{ i.product_id }}">
                                                     </div>
                                                 </td>
                                                 <td class="text-nowrap align-middle">{{ i.product_id }}</td>

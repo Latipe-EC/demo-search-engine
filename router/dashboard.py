@@ -34,9 +34,9 @@ def verification(credentials: HTTPBasicCredentials = Depends(security)):
 
 @dashboard.get("/dashboard", response_class=HTMLResponse)
 async def load_dashboard(request: Request, page: int = 0,
-                         size: int = 15, verification=Depends(verification)):
+                         size: int = 15, errorCode: int = 0, successCode: int = 0, verification=Depends(verification)):
     products = await trained_repos.trained_find_all(page, size)
-
+    print(products)
     if page == 0:
         current_page = 1
     else:
@@ -48,14 +48,40 @@ async def load_dashboard(request: Request, page: int = 0,
                                           "products": products,
                                           "total": total,
                                           "current_page": current_page,
-                                          "total_pages": total_pages
+                                          "total_pages": total_pages,
+                                          "errorCode": errorCode,
+                                          "successCode": successCode
                                       })
-
+@dashboard.post("/dashboard", response_class=HTMLResponse)
+async def load_dashboard_post(request: Request, page: int = 0,
+                         size: int = 15, errorCode: int = 0, successCode: int = 0, verification=Depends(verification)):
+    products = await trained_repos.trained_find_all(page, size)
+    print(products)
+    if page == 0:
+        current_page = 1
+    else:
+        current_page = page
+    total = await trained_repos.trained_collection.count_documents({})
+    total_pages = int(total / size)
+    return templates.TemplateResponse(request=request, name="dashboard.html",
+                                      context={
+                                          "products": products,
+                                          "total": total,
+                                          "current_page": current_page,
+                                          "total_pages": total_pages,
+                                          "errorCode": errorCode,
+                                          "successCode": successCode
+                                      })
 
 @dashboard.get("/get-by-id", response_class=HTMLResponse)
 async def get_by_id(request: Request, productId: str):
     products = []
+    if productId is not None:
+        return RedirectResponse(f"/sie/admin/dashboard?errorCode=01")
+
     p = await trained_repos.trained_find_by_productId(productId)
+    if p is not None:
+        return RedirectResponse(f"/sie/admin/dashboard?errorCode=01")
     products.append(p)
     current_page = 1
 
@@ -72,11 +98,12 @@ async def get_by_id(request: Request, productId: str):
 
 @dashboard.post("/delete", response_class=HTMLResponse)
 async def del_trained_product(productId: Annotated[str, Form()]):
+    if productId is None:
+        return RedirectResponse("/sie/admin/dashboard?errorCode=01", status_code=307)
     print(f'DEL:{productId}')
     count = await delete_trained_product(productId)
-    print(count)
     if count == 0:
-        return RedirectResponse("/api/v1/sie/admin/dashboard?error=01")
+        return RedirectResponse("/sie/admin/dashboard?errorCode=01", status_code=307)
     se_context.update_instance()
 
-    return RedirectResponse("/api/v1/sie/admin/dashboard")
+    return RedirectResponse("/sie/admin/dashboard?successCode=01", status_code=307)
