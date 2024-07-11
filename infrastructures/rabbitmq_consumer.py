@@ -22,7 +22,8 @@ def sync_handle_recive_message(ch, method, properties, body):
 
 def setup_rabbitmq_consumer():
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
+        credentials = pika.PlainCredentials('guest', 'guest')
+        connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST, credentials))
         channel = connection.channel()
 
         # Declare queues for product updates and scheduled tasks

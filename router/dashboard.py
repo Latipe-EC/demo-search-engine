@@ -76,11 +76,11 @@ async def load_dashboard_post(request: Request, page: int = 0,
 @dashboard.get("/get-by-id", response_class=HTMLResponse)
 async def get_by_id(request: Request, productId: str):
     products = []
-    if productId is not None:
+    if productId is None:
         return RedirectResponse(f"/sie/admin/dashboard?errorCode=01")
 
     p = await trained_repos.trained_find_by_productId(productId)
-    if p is not None:
+    if p is None:
         return RedirectResponse(f"/sie/admin/dashboard?errorCode=01")
     products.append(p)
     current_page = 1

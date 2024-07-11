@@ -41,6 +41,13 @@ async def read_root():
 async def read_index():
     return FileResponse('static/query.html')
 
+@app.exception_handler(404)
+async def custom_404_handler(_, __):
+    return FileResponse('static/404.html')
+
+@app.exception_handler(405)
+async def custom_404_handler(_, __):
+    return FileResponse('static/404.html')
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=SERVER_PORT, reload=True)
