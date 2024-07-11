@@ -1,5 +1,7 @@
+import datetime
 import os
 import shutil
+from datetime import time
 
 from bson import ObjectId
 
@@ -15,7 +17,8 @@ def trained_product_helper(product) -> BaseProductModel:
         id=str(product['_id']),
         product_id=product['product_id'],
         product_name=product['product_name'],
-        image_urls=product['image_urls']
+        image_urls=product['image_urls'],
+        created_date=product.get('created_date', '10/07/2024')
     )
 
 
@@ -23,10 +26,10 @@ async def trained_insert_new_product(entity):
     document = {
         "product_id": entity.product_id,
         "product_name": entity.product_name,
-        "image_urls": entity.image_urls
+        "image_urls": entity.image_urls,
+        "created_date": datetime.datetime.now()
     }
     await trained_collection.insert_one(document)
-
 
 
 async def trained_find_by_id(id) -> BaseProductModel:
@@ -56,3 +59,15 @@ async def delete_trained_product(product_id: str):
         shutil.rmtree(img_folder_path)
 
     return product.deleted_count
+
+
+async def trained_find_all(page: int, limit: int):
+    products = []
+    async for p in trained_collection.find().skip(page * limit).limit(limit).sort("created_date", -1):
+        products.append(trained_product_helper(p))
+    return products
+
+
+#count of total product
+async def trained_count_all():
+    return await trained_collection.count_documents({})

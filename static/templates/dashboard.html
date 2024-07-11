@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIE Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+    <link rel="icon" type="image/x-icon" href="/static/img/logo.png">
+</head>
+
+<body>
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+        <img style="margin-left: 40px;" src="/static/img/logo.png" width="40" height="40"
+             class="d-inline-block align-top" alt="">
+        LATIPE ADMIN SEARCH PANEL
+    </a>
+    <a class="btn btn-outline-success my-2 my-sm-0" href="/sie/admin/query" style="margin-right: 40px;">Search</a>
+</nav>
+<div class="container mt-5">
+
+    <div class="row flex-lg-nowrap">
+        <div class="col">
+            <div class="row flex-lg-nowrap">
+                <div class="col mb-3">
+                    <div class="e-panel card">
+                        <div class="card-body">
+                            <div class="card-title">
+                                <h6 class="mr-2">Danh sách các sản phẩm đã có dự liệu trong hệ thống tìm kiếm bằng hình
+                                    ảnh</h6>
+                            </div>
+                            <div class="e-table">
+                                <div class="table-responsive table-lg mt-3">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>Ảnh</th>
+                                            <th>ID Sản phẩm</th>
+                                            <th class="max-width">Sản phẩm</th>
+                                            <th class="sortable">Date</th>
+                                            <th>Chức năng</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for i in products %}
+                                            <tr>
+                                                <td class="align-middle text-center">
+                                                    <div class="bg-light d-inline-flex justify-content-center align-items-center align-top"
+                                                         style="width: 35px; height: 35px; border-radius: 3px;">
+                                                        <img style="width: 35px; height: 35px;"
+                                                             src="{{ i.image_urls[0] }}" alt="{{ i.id }}">
+                                                    </div>
+                                                </td>
+                                                <td class="text-nowrap align-middle">{{ i.product_id }}</td>
+                                                <td class="text-nowrap align-middle ">{{ i.product_name | truncate(30) }}</td>
+
+                                                <td class="text-center align-middle">
+                                                    10/07/2024
+                                                </td>
+                                                <td class="text-center align-middle">
+                                                    <div class="btn-group align-top">
+                                                        <button class="btn btn-sm btn-danger badge del-prod-btn"
+                                                                type="button" product-id="{{ i.product_id }}"><i
+                                                                class="fa fa-trash"></i></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <ul class="pagination mt-3 mb-0">
+                                        <li class="page-item"><a href="#" class="page-link">‹</a></li>
+                                        {% for page in range(1, total_pages + 1) %}
+                                            <li class="page-item {% if current_page == page %}active{% endif %}">
+                                                <a href="/sie/admin/dashboard?page={{ page }}&size=15"
+                                                   class="page-link">{{ page }}</a>
+                                            </li>
+                                        {% endfor %}
+
+                                        <li class="page-item"><a href="#" class="page-link">›</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-3 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center px-xl-3">
+                                <button class="btn btn-success btn-block" type="button" data-toggle="modal"
+                                        data-target="#user-form-modal">Thêm dữ liệu
+                                </button>
+                            </div>
+                            <hr class="my-3">
+                            <div class="e-navlist e-navlist--active-bold">
+                                <ul class="nav">
+                                    <li class="nav-item active"><a href=""
+                                                                   class="nav-link"><span>Tổng cộng: </span><small>{{ total }}</small></a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <hr class="my-3">
+                            <form action="/sie/admin/get-by-id" method="get">
+                                <div>
+                                    <div class="form-group">
+                                        <label>Tìm theo ID Sản phẩm:</label>
+                                        <div>
+                                            <input name="productId" id="product-id-search" class="form-control w-100"
+                                                   type="text"
+                                                   placeholder="Product ID" value="">
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group text-center px-xl-3 mt-2">
+                                        <button class="btn btn-success btn-block" type="submit">Tìm kiếm
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                        <hr class="my-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Form Modal -->
+        <div class="modal fade" role="dialog" tabindex="-1" id="user-form-modal">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thêm sản phẩm vào hệ thống tìm kiếm</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="py-1">
+                            <form id="add-new" class="form" action="/sie/admin/dashboard/add" method="post">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <div class="input-group mb-3">
+                                                <input type="text" class="form-control" id="prod-serv-id"
+                                                       placeholder="Tìm kiếm ID sản phẩm chưa có trong hệ thống search"
+                                                       aria-label="id-product"
+                                                       aria-describedby="button-prod-serv">
+                                                <button class="btn btn-outline-success" type="button"
+                                                        id="button-prod-serv">Tìm kiếm
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label>Tên sản phẩm</label>
+                                                    <input name="productName" class="form-control" type="text"
+                                                           id="product-name"
+                                                           placeholder="Điện thoại, túi xách,..." readonly>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label>ID Sản phẩm</label>
+                                                    <input name="productId" class="form-control" type="text"
+                                                           id="product-id"
+                                                           placeholder="ID Sản phẩm" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <label>Chọn ảnh</label>
+                                        <div class="custom-controls-stacked px-2">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="display-image">
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row mt-2">
+                                        <div class="col d-flex justify-content-end">
+                                            <button class="btn btn-primary" type="submit">Thêm</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="modal" tabindex="-1" id="delModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="/sie/admin/delete">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xoá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input name="productId" class="form-control" style="width: 100%;" readonly>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Xoá</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $('.del-prod-btn').on('click', function () {
+        let productId = $(this).attr('product-id');
+        $('#delModal input').val(productId);
+        $('#delModal').modal('show');
+    })
+
+
+    $('.checkbox-control-input').on('click', function () {
+        console.log("hehe")
+        // Đếm số lượng checkbox đã được chọn
+        var checkedCount = $('input[type="checkbox"]:checked').length;
+        // Nếu số lượng đã chọn vượt quá 2
+        if (checkedCount > 2) {
+            // Bỏ chọn checkbox đầu tiên
+            $(this).prop('checked', false);
+        }
+    });
+
+    $('#button-prod-serv').on('click', function () {
+        let product_id = $('#prod-serv-id').val();
+        product_service_url = 'https://backend.latipe.store/api/v1/products/'
+
+        $.ajax(
+            {
+                url: product_service_url + product_id,
+                type: 'GET',
+                success: function (response) {
+                    $('#product-name').val(response.name);
+                    $('#product-id').val(response.id);
+
+                    let displayImage = $('.display-image');
+                    let checkBox = $('.custom-controls-stacked');
+
+                    displayImage.empty();
+                    checkBox.empty();
+                    let imagesHtml = response.images.map(url => `<img style="height: 60px; width: 60px" src="${url}" alt="${response.name}">`).join('');
+                    let card = `
+                            <div class="card result-card">
+                                <div class="card-body d-flex align-items-center">
+                                    ${imagesHtml}
+                                </div>
+                            </div>`;
+                    displayImage.append(card);
+                    // Thêm check box
+                    let checkBoxHtml = response.images.map((url, index) => `
+                        <div class="custom-control custom-checkbox d-inline-block mr-3">
+                            <input type="checkbox" class="checkbox-control-input" id="notifications-id-${index}" value="${url}">
+                            <label class="custom-control-label" for="notifications-id-${index}">${index + 1}</label>
+                        </div>
+                    `).join('');
+
+                    checkBox.append(checkBoxHtml);
+
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            }
+        )
+    });
+
+    $('#add-new').submit(function (event) {
+        event.preventDefault();
+        var form = $(this);
+
+        var checkedValues = $('input[type="checkbox"]:checked').map(function () {
+            return this.value;
+        }).get();
+
+        let bodyJson = {
+            "product_id": form.find('#product-id').val(),
+            "product_name": form.find('#product-name').val(),
+            "image_urls": checkedValues,
+            "skip": false
+        }
+        console.log(bodyJson)
+
+        $.ajax({
+            url: '/api/v1/sie/untrained',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json', // Thêm dòng này để đặt content type là JSON
+            data: JSON.stringify(bodyJson), // Chuyển đổi bodyJson thành chuỗi JSON
+            success: function (response) {
+                location.reload();
+            },
+            error: function (error) {
+                alert("Hệ thống không xử lý thành công vui lòng thử lại sau!")
+            }
+        })
+    })
+</script>
+</body>
+</html>

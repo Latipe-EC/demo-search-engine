@@ -4,7 +4,7 @@ import requests
 from PIL import Image
 from fastapi import APIRouter, Body, Request, UploadFile
 from fastapi.params import Form, File
-from fastapi import BackgroundTasks
+from fastapi import BackgroundTasks,HTTPException
 
 from config.variable import X_API_KEY, PRODUCT_SERVICE_URL
 from database.trained_repos import trained_find_by_productId, trained_insert_new_product, \
@@ -91,11 +91,11 @@ async def training_new_product(dto: PrepareTrainingProductRequest = Body(...)):
     print(product)
     if product:
         if dto.skip is False:
-            return ResponseErrorModel(None, "Product already exists.")
+            raise HTTPException(status_code=400, detail="Product already exists")
 
         count = await delete_trained_product(dto.product_id)
         if count == 0:
-            return ResponseErrorModel(None, "Failed to change")
+            raise HTTPException(status_code=400, detail="Failed to change")
 
     await trained_insert_new_product(dto)
     await extractor_exec_product_image_db(dto.model_dump())
